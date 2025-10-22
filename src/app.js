@@ -5,6 +5,8 @@ import conectarMongo from "./config/db.mongo.js";
 import conectarMySQL from "./config/db.mysql.js";
 import testRoutes from "./routes/test.routes.js";
 import eventoRoutes from "./routes/eventoRoutes.js";
+import usuarioRoutes from "./routes/usuarioRoutes.js";
+
 
 dotenv.config();
 
@@ -14,6 +16,7 @@ app.use(express.json());
 
 app.use("/api/test", testRoutes); // 👈 monta la ruta
 app.use("/api/eventos", eventoRoutes);
+app.use("/api/usuarios", usuarioRoutes);
 
 app.get("/", (req, res) => {
   res.send("Servidor funcionando correctamente 🚀");
