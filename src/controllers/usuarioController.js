@@ -8,11 +8,11 @@ export const crearUsuario = async (req, res) => {
     await nuevoUsuario.save();
     res
       .status(201)
-      .json({ mensaje: "✅ Usuario registrado con éxito", usuario: nuevoUsuario });
+      .json({ mensaje: "Usuario registrado con éxito", usuario: nuevoUsuario });
   } catch (error) {
     res
       .status(500)
-      .json({ mensaje: "❌ Error al registrar usuario", error: error.message });
+      .json({ mensaje: "Error al registrar usuario", error: error.message });
   }
 };
 
@@ -24,6 +24,6 @@ export const obtenerUsuarios = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ mensaje: "❌ Error al obtener usuarios", error: error.message });
+      .json({ mensaje: "Error al obtener usuarios", error: error.message });
   }
 };

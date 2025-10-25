@@ -9,5 +9,4 @@ const usuarioSchema = new mongoose.Schema({
 
 const Usuario = mongoose.model("Usuario", usuarioSchema);
 
-// 👇 Esto es lo importante:
 export default Usuario;
