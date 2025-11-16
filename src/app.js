@@ -3,48 +3,86 @@ import cors from "cors";
 import dotenv from "dotenv";
 import conectarMongo from "./config/db.mongo.js";
 import conectarMySQL from "./config/db.mysql.js";
+import { errorHandler, notFound } from "./middleware/errorHandler.js";
+
+// Importar rutas
 import testRoutes from "./routes/test.routes.js";
+import authRoutes from "./routes/authRoutes.js";
 import eventoRoutes from "./routes/eventoRoutes.js";
 import usuarioRoutes from "./routes/usuarioRoutes.js";
 import inscripcionRoutes from "./routes/inscripcionRoutes.js";
 import pagoRoutes from "./routes/pagoRoutes.js";
 
-
 dotenv.config();
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-app.use("/api/test", testRoutes); // Monta la ruta
+// Middlewares globales
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Ruta raíz
+app.get("/", (req, res) => {
+  res.json({
+    mensaje: "🎓 API Sistema de Gestión de Eventos USC",
+    version: "1.0.0",
+    endpoints: {
+      auth: "/api/auth",
+      eventos: "/api/eventos",
+      usuarios: "/api/usuarios",
+      inscripciones: "/api/inscripciones",
+      pagos: "/api/pagos",
+      test: "/api/test"
+    }
+  });
+});
+
+// Montar rutas
+app.use("/api/test", testRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/eventos", eventoRoutes);
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/inscripciones", inscripcionRoutes);
 app.use("/api/pagos", pagoRoutes);
 
+// Manejo de rutas no encontradas
+app.use(notFound);
 
-app.get("/", (req, res) => {
-  res.send("Servidor funcionando correctamente ");
-});
+// Manejador de errores
+app.use(errorHandler);
 
-// Conectar a las bases de datos
-conectarMongo();
-conectarMySQL();
-
+// Iniciar servidor
 const iniciarServidor = async () => {
-  app.use(express.json());
-  app.use(cors());
+  try {
+    console.log("🔄 Iniciando servidor...");
 
-  console.log(" Intentando conectar a MongoDB...");
-  await conectarMongo();
-  console.log(" MongoDB conectado correctamente.");
+    // Conectar a MongoDB
+    console.log("🔄 Conectando a MongoDB...");
+    await conectarMongo();
+    console.log("✅ MongoDB conectado correctamente");
 
-  console.log(" Intentando conectar a MySQL...");
-  await conectarMySQL();
-  console.log(" MySQL conectado correctamente.");
+    // Conectar a MySQL
+    console.log("🔄 Conectando a MySQL...");
+    await conectarMySQL();
+    console.log("✅ MySQL conectado correctamente");
 
-  const PORT = 4000;
-  app.listen(PORT, () => console.log(` Servidor corriendo en el puerto ${PORT}`));
+    // Iniciar servidor
+    const PORT = process.env.PORT || 4000;
+    app.listen(PORT, () => {
+      console.log(`\n🚀 Servidor corriendo en: http://localhost:${PORT}`);
+      console.log(`📚 Documentación: http://localhost:${PORT}/`);
+      console.log(`⚡ Modo: ${process.env.NODE_ENV || 'development'}\n`);
+    });
+  } catch (error) {
+    console.error("❌ Error al iniciar el servidor:", error);
+    process.exit(1);
+  }
 };
 
 iniciarServidor();
+
+export default app;

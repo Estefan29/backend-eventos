@@ -9,10 +9,10 @@ const conectarMySQL = async () => {
       database: process.env.DB_NAME,
       port: process.env.DB_PORT,
     });
-    console.log("🟠 Conectado a MySQL correctamente");
+    console.log(" Conectado a MySQL correctamente");
     return connection;
   } catch (error) {
-    console.error("❌ Error al conectar a MySQL:", error.message);
+    console.error(" Error al conectar a MySQL:", error.message);
     process.exit(1);
   }
 };

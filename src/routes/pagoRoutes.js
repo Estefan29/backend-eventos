@@ -4,15 +4,21 @@ import {
   obtenerPagoPorId,
   crearPago,
   actualizarPago,
-  eliminarPago,
+  eliminarPago
 } from "../controllers/pagoController.js";
+import { verificarToken } from "../middleware/auth.middleware.js";
+import { esAdmin } from "../middleware/verificarRol.js";
+import { validarPago } from "../middleware/validators.js";
 
 const router = express.Router();
 
-router.get("/", obtenerPagos);
-router.get("/:id", obtenerPagoPorId);
-router.post("/", crearPago);
-router.put("/:id", actualizarPago);
-router.delete("/:id", eliminarPago);
+// Rutas para usuarios autenticados
+router.post("/", verificarToken, validarPago, crearPago);
+router.get("/:id", verificarToken, obtenerPagoPorId);
+
+// Rutas para admin
+router.get("/", verificarToken, esAdmin, obtenerPagos);
+router.put("/:id", verificarToken, esAdmin, actualizarPago);
+router.delete("/:id", verificarToken, esAdmin, eliminarPago);
 
 export default router;

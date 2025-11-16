@@ -1,94 +1,48 @@
-import conectarMySQL from "../config/db.mysql.js";
+// src/controllers/pagoController.js
+import { PagoModel } from "../models/pago.model.js";
 
-// Crear un nuevo pago
-export const crearPago = async (req, res) => {
-  const { id_inscripcion, monto, metodo_pago, estado, fecha_pago } = req.body;
-
-  try {
-    const connection = await conectarMySQL();
-    const [result] = await connection.query(
-      "INSERT INTO pagos (id_inscripcion, monto, metodo_pago, estado, fecha_pago) VALUES (?, ?, ?, ?, ?)",
-      [id_inscripcion, monto, metodo_pago, estado, fecha_pago]
-    );
-
-    res.status(201).json({
-      mensaje: " Pago registrado correctamente",
-      id_pago: result.insertId,
-    });
-  } catch (error) {
-    console.error("Error al crear pago:", error);
-    res.status(500).json({ mensaje: "Error al crear el pago", error: error.message });
-  }
-};
-
-// Obtener todos los pagos
 export const obtenerPagos = async (req, res) => {
   try {
-    const connection = await conectarMySQL();
-    const [rows] = await connection.query("SELECT * FROM pagos");
-    res.status(200).json(rows);
+    const pagos = await PagoModel.obtenerTodos();
+    res.json(pagos);
   } catch (error) {
-    console.error("Error al obtener pagos:", error);
-    res.status(500).json({ mensaje: "Error al obtener pagos", error: error.message });
+    res.status(500).json({ message: "Error al obtener los pagos", error });
   }
 };
 
-// Obtener pago por ID
 export const obtenerPagoPorId = async (req, res) => {
-  const { id } = req.params;
   try {
-    const connection = await conectarMySQL();
-    const [rows] = await connection.query("SELECT * FROM pagos WHERE id = ?", [id]);
-
-    if (rows.length === 0) {
-      return res.status(404).json({ mensaje: "Pago no encontrado" });
-    }
-
-    res.status(200).json(rows[0]);
+    const pago = await PagoModel.obtenerPorId(req.params.id);
+    if (!pago) return res.status(404).json({ message: "No encontrado" });
+    res.json(pago);
   } catch (error) {
-    console.error("Error al obtener pago:", error);
-    res.status(500).json({ mensaje: "Error al obtener pago", error: error.message });
+    res.status(500).json({ message: "Error al obtener el pago", error });
   }
 };
 
-// Actualizar pago
+export const crearPago = async (req, res) => {
+  try {
+    const nuevo = await PagoModel.crear(req.body);
+    res.status(201).json(nuevo);
+  } catch (error) {
+    res.status(500).json({ message: "Error al crear el pago", error });
+  }
+};
+
 export const actualizarPago = async (req, res) => {
-  const { id } = req.params;
-  const { monto, metodo_pago, estado, fecha_pago } = req.body;
-
   try {
-    const connection = await conectarMySQL();
-    const [result] = await connection.query(
-      "UPDATE pagos SET monto = ?, metodo_pago = ?, estado = ?, fecha_pago = ? WHERE id = ?",
-      [monto, metodo_pago, estado, fecha_pago, id]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ mensaje: "Pago no encontrado" });
-    }
-
-    res.status(200).json({ mensaje: "Pago actualizado correctamente" });
+    const actualizado = await PagoModel.actualizar(req.params.id, req.body);
+    res.json(actualizado);
   } catch (error) {
-    console.error("Error al actualizar pago:", error);
-    res.status(500).json({ mensaje: "Error al actualizar pago", error: error.message });
+    res.status(500).json({ message: "Error al actualizar el pago", error });
   }
 };
 
-// Eliminar pago
 export const eliminarPago = async (req, res) => {
-  const { id } = req.params;
-
   try {
-    const connection = await conectarMySQL();
-    const [result] = await connection.query("DELETE FROM pagos WHERE id = ?", [id]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ mensaje: "Pago no encontrado" });
-    }
-
-    res.status(200).json({ mensaje: "Pago eliminado correctamente" });
+    const eliminado = await PagoModel.eliminar(req.params.id);
+    res.json(eliminado);
   } catch (error) {
-    console.error("Error al eliminar pago:", error);
-    res.status(500).json({ mensaje: "Error al eliminar pago", error: error.message });
+    res.status(500).json({ message: "Error al eliminar el pago", error });
   }
 };

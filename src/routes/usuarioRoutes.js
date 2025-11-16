@@ -1,12 +1,23 @@
 import express from "express";
-import { crearUsuario, obtenerUsuarios } from "../controllers/usuarioController.js";
+import { 
+  crearUsuario, 
+  obtenerUsuarios,
+  obtenerUsuarioPorId,
+  actualizarUsuario,
+  eliminarUsuario
+} from "../controllers/usuarioController.js";
+import { verificarToken } from "../middleware/auth.middleware.js";
+import { esAdmin, esPropietarioOAdmin } from "../middleware/verificarRol.js";
 
 const router = express.Router();
 
-// Registrar usuario
-router.post("/", crearUsuario);
+// Solo admin puede listar y crear usuarios
+router.get("/", verificarToken, esAdmin, obtenerUsuarios);
+router.post("/", verificarToken, esAdmin, crearUsuario);
 
-// Listar usuarios
-router.get("/", obtenerUsuarios);
+// Usuario puede ver/editar su propio perfil, admin puede ver/editar cualquiera
+router.get("/:id", verificarToken, esPropietarioOAdmin, obtenerUsuarioPorId);
+router.put("/:id", verificarToken, esPropietarioOAdmin, actualizarUsuario);
+router.delete("/:id", verificarToken, esAdmin, eliminarUsuario);
 
 export default router;
