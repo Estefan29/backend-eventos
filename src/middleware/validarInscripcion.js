@@ -6,11 +6,13 @@ export const validarInscripcion = async (req, res, next) => {
   try {
     const { id_usuario, id_evento_mongo } = req.body;
 
+    // 1. Verificar que el evento existe
     const evento = await Evento.findById(id_evento_mongo);
     if (!evento) {
       throw new AppError('El evento no existe', 404);
     }
 
+    // 2. Verificar que el evento no haya pasado
     const fechaEvento = new Date(evento.fecha);
     const hoy = new Date();
     
@@ -18,6 +20,7 @@ export const validarInscripcion = async (req, res, next) => {
       throw new AppError('No puedes inscribirte a un evento que ya pasó', 400);
     }
 
+    // 3. Verificar cupos disponibles
     const db = await conectarMySQL();
     const [inscripciones] = await db.query(
       'SELECT COUNT(*) as total FROM inscripciones WHERE id_evento_mongo = ? AND estado != "cancelada"',
@@ -30,6 +33,7 @@ export const validarInscripcion = async (req, res, next) => {
       throw new AppError('Este evento ya no tiene cupos disponibles', 400);
     }
 
+    // 4. Verificar que el usuario no esté ya inscrito
     const [inscripcionExistente] = await db.query(
       'SELECT id FROM inscripciones WHERE id_usuario = ? AND id_evento_mongo = ? AND estado != "cancelada"',
       [id_usuario, id_evento_mongo]
@@ -39,6 +43,7 @@ export const validarInscripcion = async (req, res, next) => {
       throw new AppError('Ya estás inscrito en este evento', 400);
     }
 
+    // 5. Adjuntar información del evento a la request
     req.evento = evento;
     req.cuposDisponibles = evento.capacidad - inscritosActuales;
 

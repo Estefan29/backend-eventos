@@ -1,4 +1,3 @@
-// src/controllers/pagoController.js
 import { PagoModel } from "../models/pago.model.js";
 
 export const obtenerPagos = async (req, res) => {

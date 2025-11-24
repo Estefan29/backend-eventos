@@ -1,15 +1,38 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const usuarioSchema = new mongoose.Schema({
-  nombre: { type: String, required: true },
-  correo: { type: String, required: true, unique: true },
-  contraseña: { type: String, required: true },
-  rol: { 
-    type: String, 
-    enum: ["admin", "estudiante", "profesor", "externo"], 
-    default: "externo" 
+  nombre: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  correo: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true
+  },
+  contraseña: {
+    type: String,
+    required: true
+  },
+  rol: {
+    type: String,
+    enum: ['estudiante', 'profesor', 'administrativo', 'externo'],
+    default: 'estudiante'
+  },
+  
+  tokenRecuperacion: {
+    type: String
+  },
+  tokenRecuperacionExpira: {
+    type: Date
   }
+
+  
+}, {
+  timestamps: true // Agrega createdAt y updatedAt automáticamente
 });
 
-const Usuario = mongoose.model("Usuario", usuarioSchema);
-export default Usuario;
+export default mongoose.model('Usuario', usuarioSchema);
