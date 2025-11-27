@@ -15,14 +15,22 @@ import { validarInscripcion } from "../middleware/validarInscripcion.js";
 
 const router = express.Router();
 
-// Rutas para usuarios autenticados
-router.get("/mis-inscripciones", verificarToken, obtenerMisInscripciones);
+// Cualquier usuario autenticado puede inscribirse
 router.post("/", verificarToken, validarInscripcionData, validarInscripcion, crearInscripcion);
+
+//  Cualquier usuario autenticado puede ver sus inscripciones
+router.get("/mis-inscripciones", verificarToken, obtenerMisInscripciones);
+
+//  Cualquier usuario autenticado puede ver una inscripción específica
+router.get("/:id", verificarToken, obtenerInscripcionPorId);
+
+//  Cualquier usuario autenticado puede cancelar su inscripción
 router.put("/:id/cancelar", verificarToken, cancelarInscripcion);
 
-// Rutas para admin
+// Solo admin puede ver todas las inscripciones
 router.get("/", verificarToken, esAdmin, obtenerInscripciones);
-router.get("/:id", verificarToken, obtenerInscripcionPorId);
+
+// Solo admin puede actualizar y eliminar
 router.put("/:id", verificarToken, esAdmin, actualizarInscripcion);
 router.delete("/:id", verificarToken, esAdmin, eliminarInscripcion);
 

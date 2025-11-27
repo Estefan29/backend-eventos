@@ -1,4 +1,3 @@
-// src/models/evento.model.js
 import mongoose from "mongoose";
 
 const eventoSchema = new mongoose.Schema({

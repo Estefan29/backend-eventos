@@ -5,8 +5,10 @@ import {
   obtenerPerfil,
   actualizarPerfil,
   cambiarContraseña,
-  recuperarPassword,      // ← NUEVO
-  restablecerPassword     // ← NUEVO
+  recuperarPassword,     
+  restablecerPassword,
+  //promoverAAdministrativo,
+  //cambiarRolUsuario
 } from '../controllers/authController.js';
 import { verificarToken } from '../middleware/auth.middleware.js';
 
@@ -22,5 +24,8 @@ router.post('/restablecer-password', restablecerPassword);      // ← NUEVO
 router.get('/perfil', verificarToken, obtenerPerfil);
 router.put('/perfil', verificarToken, actualizarPerfil);
 router.put('/cambiar-password', verificarToken, cambiarContraseña);
+
+//router.put('/usuarios/:usuarioId/promover', protegerRuta, promoverAAdministrativo);
+//router.put('/usuarios/:usuarioId/cambiar-rol', protegerRuta, cambiarRolUsuario);
 
 export default router;  
