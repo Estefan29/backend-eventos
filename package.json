@@ -6,7 +6,15 @@
   "moduleResolution": "node",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "dev": "nodemon src/app.js",
+    "test": "cross-env NODE_ENV=test jest",
+    "test:watch": "cross-env NODE_ENV=test jest --watch",
+    "test:coverage": "cross-env NODE_ENV=test jest --coverage",
+    "test:verbose": "cross-env NODE_ENV=test jest --verbose",
+    "test:auth": "cross-env NODE_ENV=test jest _tests_/authController.test.js",
+    "test:eventos": "cross-env NODE_ENV=test jest _tests_/eventoController.test.js",
+    "test:inscripciones": "cross-env NODE_ENV=test jest _tests_/inscripcionController.test.js",
+    "test:usuarios": "cross-env NODE_ENV=test jest _tests_/usuarioController.test.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -22,6 +30,14 @@
     "react-router-dom": "^7.9.6"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "@jest/globals": "^30.2.0",
+    "babel-jest": "^30.2.0",
+    "babel-plugin-module-resolver": "^5.0.2",
+    "cross-env": "^10.1.0",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4"
   }
 }

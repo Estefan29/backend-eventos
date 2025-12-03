@@ -1,85 +1,79 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const Usuario = require('../models/Usuario'); // Ajusta la ruta según tu estructura
+const Usuario = require('../models/Usuario');
 
-const crearAdminPorDefecto = async () => {
+const crearUsuariosDefecto = async () => {
   try {
-    // Conectar a la base de datos
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/eventos-usc');
     console.log('✅ Conectado a MongoDB');
 
-    // Verificar si ya existe un administrador
+    // ===========================
+    // 1. CREAR ADMINISTRADOR
+    // ===========================
     const adminExistente = await Usuario.findOne({ rol: 'admin' });
     
-    if (adminExistente) {
-      console.log('⚠️  Ya existe un administrador en el sistema');
-      console.log('📧 Email:', adminExistente.correo);
-      
-      // Preguntar si desea cambiar la contraseña
-      const readline = require('readline').createInterface({
-        input: process.stdin,
-        output: process.stdout
+    if (!adminExistente) {
+      const passwordAdmin = 'admin123';
+      const saltAdmin = await bcrypt.genSalt(10);
+      const hashAdmin = await bcrypt.hash(passwordAdmin, saltAdmin);
+
+      const admin = new Usuario({
+        nombre: 'Administrador USC',
+        correo: 'admin@usc.edu.co',
+        password: hashAdmin,
+        rol: 'admin',
+        telefono: '3001234567',
+        carrera: 'Administración del Sistema'
       });
 
-      readline.question('¿Deseas cambiar la contraseña del admin? (s/n): ', async (respuesta) => {
-        if (respuesta.toLowerCase() === 's') {
-          readline.question('Ingresa la nueva contraseña (mínimo 6 caracteres): ', async (nuevaContraseña) => {
-            if (nuevaContraseña.length < 6) {
-              console.log('❌ La contraseña debe tener al menos 6 caracteres');
-            } else {
-              const salt = await bcrypt.genSalt(10);
-              adminExistente.contraseña = await bcrypt.hash(nuevaContraseña, salt);
-              await adminExistente.save();
-              console.log('✅ Contraseña del administrador actualizada');
-            }
-            readline.close();
-            process.exit(0);
-          });
-        } else {
-          readline.close();
-          process.exit(0);
-        }
-      });
-      
-      return;
+      await admin.save();
+      console.log('✅ Administrador creado');
+      console.log('📧 Email: admin@usc.edu.co');
+      console.log('🔑 Password: admin123\n');
+    } else {
+      console.log('⚠️  Administrador ya existe\n');
     }
 
-    // Crear nuevo administrador
-    console.log('\n🔐 Creando administrador por defecto...\n');
+    // ===========================
+    // 2. CREAR ADMINISTRATIVO
+    // ===========================
+    const administrativoExistente = await Usuario.findOne({ rol: 'administrativo' });
+    
+    if (!administrativoExistente) {
+      const passwordAdministrativo = 'admin123';
+      const saltAdministrativo = await bcrypt.genSalt(10);
+      const hashAdministrativo = await bcrypt.hash(passwordAdministrativo, saltAdministrativo);
 
-    const datosAdmin = {
-      nombre: 'Administrador USC',
-      correo: 'admin@usc.edu.co', // Cambiar según tu dominio
-      contraseña: 'admin123', // ⚠️ CAMBIAR DESPUÉS DEL PRIMER LOGIN
-      rol: 'admin',
-      telefono: '3001234567',
-      carrera: 'Administración del Sistema'
-    };
+      const administrativo = new Usuario({
+        nombre: 'Secretaría USC',
+        correo: 'secretaria@usc.edu.co',
+        password: hashAdministrativo,
+        rol: 'administrativo',
+        telefono: '3009876543',
+        carrera: 'Secretaría Académica'
+      });
 
-    // Hashear contraseña
-    const salt = await bcrypt.genSalt(10);
-    datosAdmin.contraseña = await bcrypt.hash(datosAdmin.contraseña, salt);
+      await administrativo.save();
+      console.log('✅ Usuario Administrativo creado');
+      console.log('📧 Email: secretaria@usc.edu.co');
+      console.log('🔑 Password: admin123\n');
+    } else {
+      console.log('⚠️  Usuario Administrativo ya existe\n');
+    }
 
-    // Crear usuario admin
-    const admin = new Usuario(datosAdmin);
-    await admin.save();
-
-    console.log('✅ Administrador creado exitosamente!');
-    console.log('\n📋 Credenciales del administrador:');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`📧 Email:     ${datosAdmin.correo}`);
-    console.log(`🔑 Contraseña: admin123`);
+    console.log('✅ Proceso completado');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('\n⚠️  IMPORTANTE: Cambia la contraseña después del primer inicio de sesión\n');
 
+    await mongoose.connection.close();
     process.exit(0);
 
   } catch (error) {
-    console.error('❌ Error al crear administrador:', error);
+    console.error('❌ Error:', error);
+    await mongoose.connection.close();
     process.exit(1);
   }
 };
 
-// Ejecutar función
-crearAdminPorDefecto();
+crearUsuariosDefecto();
